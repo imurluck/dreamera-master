@@ -3,7 +3,10 @@ package com.example.dreamera_master;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +17,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.adapter.FragmentAdapter;
+
+import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -30,6 +37,30 @@ public class MainActivity extends AppCompatActivity {
     private TextView userName;
 
     private TextView email;
+
+    private PostFragment postFragment;
+
+    private PutFragment putFragment;
+
+    private DeleteFragment deleteFragment;
+
+    private GetFragment getFragment;
+
+    private TabLayout tabLayout;
+
+    private ViewPager viewPager;
+
+    private ArrayList<String> tabTitles = new ArrayList<String>();
+
+    private ArrayList<Fragment> fragmentList = new ArrayList<>();
+
+    private TabLayout.Tab postTab;
+
+    private TabLayout.Tab putTab;
+
+    private TabLayout.Tab deleteTab;
+
+    private TabLayout.Tab getTab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         View headerView = mNavigationView.inflateHeaderView(R.layout.nav_header);
         //setNavigationHeaderListener();
         setNavigationMenuListener();
+        initViewPager();//初始化ViewPager
     }
 
     private void setNavigationHeaderListener(){
@@ -128,5 +160,28 @@ public class MainActivity extends AppCompatActivity {
             default:
         }
         return true;
+     }
+
+     private void initViewPager() {
+         tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+         viewPager = (ViewPager) findViewById(R.id.view_pager);
+
+         postFragment = new PostFragment();
+         putFragment = new PutFragment();
+         deleteFragment = new DeleteFragment();
+         getFragment = new GetFragment();
+         fragmentList.add(postFragment);
+         fragmentList.add(putFragment);
+         fragmentList.add(deleteFragment);
+         fragmentList.add(getFragment);
+
+         tabTitles.add(new String("Post"));
+         tabTitles.add(new String("Put"));
+         tabTitles.add(new String("Delete"));
+         tabTitles.add(new String("Get"));
+         FragmentAdapter adapter = new FragmentAdapter(getSupportFragmentManager(),
+                 fragmentList, tabTitles);
+         viewPager.setAdapter(adapter);
+         tabLayout.setupWithViewPager(viewPager);
      }
 }
