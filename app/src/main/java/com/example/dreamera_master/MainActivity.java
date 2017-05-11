@@ -1,10 +1,14 @@
 package com.example.dreamera_master;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -18,9 +22,11 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.baidu.mapapi.SDKInitializer;
 import com.example.adapter.FragmentAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -65,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SDKInitializer.initialize(getApplicationContext());
         setContentView(R.layout.activity_main);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -82,6 +89,50 @@ public class MainActivity extends AppCompatActivity {
         //setNavigationHeaderListener();
         setNavigationMenuListener();
         initViewPager();//初始化ViewPager
+        applyPermission();
+    }
+
+    private void applyPermission() {
+        List<String> permissionList = new ArrayList<>();
+        if (ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission
+        .ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission
+        .READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(Manifest.permission.READ_PHONE_STATE);
+        }
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission
+        .WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (!permissionList.isEmpty()) {
+            String[] permissions = permissionList.toArray(new String[permissionList.size()]);
+            ActivityCompat.requestPermissions(MainActivity.this, permissions, 1);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1:
+                if (grantResults.length > 0) {
+                    for (int result : grantResults) {
+                        if (result != PackageManager.PERMISSION_GRANTED) {
+                            Toast.makeText(MainActivity.this, "You can use the app by aggreeing all the permissions",
+                                    Toast.LENGTH_SHORT).show();
+                            finish();
+                            return ;
+                        }
+                    }
+                } else {
+                    Toast.makeText(MainActivity.this, "something wrong happen",
+                            Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                break;
+            default:
+        }
     }
 
     private void setNavigationHeaderListener(){
@@ -181,6 +232,7 @@ public class MainActivity extends AppCompatActivity {
          tabTitles.add(new String("Get"));
          FragmentAdapter adapter = new FragmentAdapter(getSupportFragmentManager(),
                  fragmentList, tabTitles);
+         //viewPager.setOffscreenPageLimit(3);
          viewPager.setAdapter(adapter);
          tabLayout.setupWithViewPager(viewPager);
      }

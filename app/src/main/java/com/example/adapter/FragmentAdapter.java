@@ -3,6 +3,7 @@ package com.example.adapter;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
@@ -39,4 +40,7 @@ public class FragmentAdapter extends FragmentPagerAdapter {
     public int getItemPosition(Object object) {
         return super.getItemPosition(object);
     }
+
+    @Override
+    public void destroyItem(ViewGroup container, int position, Object object) {}
 }
