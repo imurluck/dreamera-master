@@ -1,18 +1,25 @@
 package com.example.dreamera_master;
 
 
+import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -37,8 +44,16 @@ import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
+import com.example.utils.HttpUtil;
 
+import java.io.IOException;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 //import com.baidu.mapapi.search.geocode.GeoCodeResult;
 //import com.baidu.mapapi.search.geocode.GeoCoder;
@@ -84,6 +99,14 @@ public class PostFragment extends Fragment implements View.OnClickListener {
 
     private String address = null;
 
+    private FloatingActionButton addPlace;
+
+    private boolean isTaged = false;
+
+    private ProgressDialog progressDialog = null;
+
+    private Map<String, String> paraMap = new HashMap<String, String>();
+
     public PostFragment() {
         // Required empty public constructor
     }
@@ -99,16 +122,25 @@ public class PostFragment extends Fragment implements View.OnClickListener {
         datetimeText = (TextView) view.findViewById(R.id.datatime_text);
         addPicture = (Button) view.findViewById(R.id.add_picture);
         showImage = (ImageView) view.findViewById(R.id.show_image);*/
+        addPlace = (FloatingActionButton) view.findViewById(R.id.floating_button);
         mapView = (MapView) view.findViewById(R.id.bd_map_view);
         baiduMap = mapView.getMap();
         baiduMap.setMyLocationEnabled(true);
         //chooseDatetime.setOnClickListener(this);
         //addPicture.setOnClickListener(this);
-        ///mLocationClient = new LocationClient(getActivity().getApplication());
-        ///mLocationClient.registerLocationListener(new MyLocationListener());
-        //requestLocation();
+        mLocationClient = new LocationClient(getActivity().getApplication());
+        mLocationClient.registerLocationListener(new MyLocationListener());
+        requestLocation();
         tagMap();
-        //mLocationClient.registerLocationListener();
+        if (isTaged == false) {
+            addPlace.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(getActivity(), "you haven't choose a place," +
+                            "please click the map first", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
         return view;
     }
 
@@ -147,17 +179,83 @@ public class PostFragment extends Fragment implements View.OnClickListener {
 
             @Override
             public void onGetReverseGeoCodeResult(ReverseGeoCodeResult reverseGeoCodeResult) {
+                isTaged = true;
                 address = reverseGeoCodeResult.getAddress();
                 TextView textView = new TextView(MyApplication.getContext());
                 textView.setBackgroundColor(Color.WHITE);
+                textView.setTextColor(Color.BLACK);
                 Log.d("address", address);
                 textView.setText(address);
                 mInfoWindow = new InfoWindow(textView, latLng, 80);
                 baiduMap.showInfoWindow(mInfoWindow);
+                addPlace();
             }
         });
         mSearch.reverseGeoCode(new ReverseGeoCodeOption().location(latLng));
     }
+
+    private void addPlace() {
+        Log.d("PostFragment", "address: " + address);
+        Log.d("PostFragment", "tagPositionLatitude: " + String.valueOf(tagPositionLatitude));
+        Log.d("PostFragment", "tagPositionLongitude" + String.valueOf(tagPositionLongitude));
+        final View addPlaceView = LayoutInflater.from(getActivity()).inflate(
+                                R.layout.place_add, null);
+        final EditText addressEdit = (EditText) addPlaceView.findViewById(R.id.address_edit);
+        final EditText latitudeEdit = (EditText) addPlaceView.findViewById(R.id.latitude_edit);
+        final EditText longitudeEdit = (EditText) addPlaceView.findViewById(R.id.longitude_edit);
+        Button cancel = (Button) addPlaceView.findViewById(R.id.cancel_add_palce);
+        Button confirm = (Button) addPlaceView.findViewById(R.id.confirm_add_place);
+        addressEdit.setText(address);
+        latitudeEdit.setText(String.valueOf(tagPositionLatitude));
+        longitudeEdit.setText(String.valueOf(tagPositionLongitude));
+        final PopupWindow popupWindow = new PopupWindow(addPlaceView,
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
+        popupWindow.setTouchable(true);
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.add_place_background));
+        addPlace.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupWindow.showAtLocation(addPlaceView, Gravity.CENTER, 0, 0);
+            }
+        });
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupWindow.dismiss();
+            }
+        });
+        confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showProgressDialog();
+                paraMap.put("name", addressEdit.getText().toString());
+                paraMap.put("longitude", longitudeEdit.getText().toString());
+                paraMap.put("latitude", latitudeEdit.getText().toString());
+                paraMap.put("altitude", "0.0");
+                HttpUtil.postPlace("http://www.dreamera.net/cross/place/", paraMap, new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        closeProgressDialog();
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(MyApplication.getContext(), "upLoad completed!",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
+                popupWindow.dismiss();
+            }
+        });
+    }
+
     private void requestLocation() {
         initLocation();
         mLocationClient.start();
@@ -286,4 +384,19 @@ public class PostFragment extends Fragment implements View.OnClickListener {
                     Toast.LENGTH_SHORT).show();
         }
     }*/
+
+    private void showProgressDialog() {
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("upLoading...");
+            progressDialog.setCancelable(false);
+        }
+        progressDialog.show();
+    }
+
+    private void closeProgressDialog() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        }
+    }
 }

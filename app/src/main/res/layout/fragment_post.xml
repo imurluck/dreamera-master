@@ -107,5 +107,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
         android:layout_margin="16dp"
-        android:src="@drawable/add"/>
+        android:src="@drawable/add"
+        android:clickable="true"/>
 </FrameLayout>
