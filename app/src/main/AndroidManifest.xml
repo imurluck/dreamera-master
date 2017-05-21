@@ -36,8 +36,10 @@
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
-            android:process=":remote"></service>
+            android:process=":remote" />
 
+        <activity android:name=".MyPlaceActivity" />
+        <activity android:name=".AddPictureActivity"></activity>
     </application>
 
 </manifest>

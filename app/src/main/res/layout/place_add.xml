@@ -61,7 +61,7 @@
             android:text="Cancel"
             android:textAllCaps="false"
             android:padding="0dp"
-            android:background="@drawable/add_place_background" />
+            android:background="@color/cardview_light_background" />
 
         <Button
             android:layout_width="110dp"
@@ -71,6 +71,6 @@
             android:textAllCaps="false"
             android:padding="0dp"
             android:layout_toRightOf="@+id/cancel_add_palce"
-            android:background="@drawable/add_place_background"/>
+            android:background="@color/cardview_light_background"/>
     </RelativeLayout>
 </LinearLayout>

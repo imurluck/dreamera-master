@@ -4,22 +4,15 @@ package com.example.dreamera_master;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.utils.HandleImagePath;
-import com.example.utils.HttpUtil;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 
 /**
@@ -49,7 +42,7 @@ public class PutFragment extends Fragment {
                 startActivityForResult(intent, 1);
             }
         });
-        final Map<String, String> paraMap = new HashMap<String, String>();
+        /**final Map<String, String> paraMap = new HashMap<String, String>();
         postPicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,8 +55,8 @@ public class PutFragment extends Fragment {
                 paraMap.put("longitude", "124.1611");
                 paraMap.put("latitude", "65.151");
                 paraMap.put("altitude", "0.0");
-                paraMap.put("place", "234");
-                HttpUtil.postPicture("http://www.dreamera.net/cross/picture/", paraMap, imgPath,  new Callback() {
+                paraMap.put("place", "237");
+                HttpUtil.postPicture(paraMap, imgPath,  new Callback() {
 
                     @Override
                     public void onFailure(Call call, IOException e) {
@@ -75,6 +68,67 @@ public class PutFragment extends Fragment {
                         Log.d("PutFragment", response.body().string());
                     }
                 });
+            }
+        });*/
+        postPicture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Map<String, String> paraMap = new HashMap<String, String>();
+                paraMap.put("name", "nothing");
+                paraMap.put("longitude", "116.1615151");
+                paraMap.put("latitude", "39.115151");
+                paraMap.put("altitude", "0.0");
+                /**HttpUtil.putPlace("231/", paraMap, new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        Log.d("PutFragment", response.body().string());
+                    }
+                });*/
+                /**HttpUtil.postPlace(paraMap, new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        Log.d("PutFragment", response.body().string());
+                    }
+                });
+                /**HttpUtil.deletePlace("233/", new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        Log.d("PutFragment", response.body().string());
+                    }
+                });*/
+                /**HttpUtil.getConCretePlace("120", new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        String responseContent = response.body().string();
+                        Log.d("PutFragment", responseContent);
+                        Place place = ParseJSON.handleJSONForConcretePlace(responseContent);
+                        for (MyPicture picture : place.getPicturesList()) {
+                            Log.d("PutFragment", picture.getPictureUrl());
+                        }
+                    }
+                });*/
+                Intent intent = new Intent(getActivity(), MyPlaceActivity.class);
+                startActivity(intent);
             }
         });
         return view;

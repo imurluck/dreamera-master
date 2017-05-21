@@ -2,6 +2,7 @@ package com.example.dreamera_master;
 
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -212,7 +213,7 @@ public class PostFragment extends Fragment implements View.OnClickListener {
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
         popupWindow.setTouchable(true);
         popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.add_place_background));
+        popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.place_add_background));
         addPlace.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -233,7 +234,7 @@ public class PostFragment extends Fragment implements View.OnClickListener {
                 paraMap.put("longitude", longitudeEdit.getText().toString());
                 paraMap.put("latitude", latitudeEdit.getText().toString());
                 paraMap.put("altitude", "0.0");
-                HttpUtil.postPlace("http://www.dreamera.net/cross/place/", paraMap, new Callback() {
+                HttpUtil.postPlace(paraMap, new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
 
@@ -242,6 +243,9 @@ public class PostFragment extends Fragment implements View.OnClickListener {
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
                         closeProgressDialog();
+                        Intent intent = new Intent(getActivity(), MyPlaceActivity.class);
+                        intent.putExtra("placeName", addressEdit.getText().toString());
+                        startActivity(intent);
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
