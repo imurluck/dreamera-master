@@ -2,11 +2,13 @@ package com.example.utils;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by Zhangzongxiang on 2017/5/20.
  */
 
-public class MyPicture {
+public class MyPicture implements Serializable {
 
     @SerializedName("id")
     private int pictureId;

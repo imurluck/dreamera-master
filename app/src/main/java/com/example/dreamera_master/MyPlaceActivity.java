@@ -51,7 +51,7 @@ public class MyPlaceActivity extends AppCompatActivity {
         titleText.setText(placeName);
         setSupportActionBar(myPlaceToolbar);
         Log.d("MyPlaceActivity", placeName);
-        initPlaces();
+        placeId = getPlaceIdFromPlaceName(placeName);
         Log.d("MyPlaceActivity", placeId);
         recyclerView = (RecyclerView) findViewById(R.id.my_place_recycler);
         GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
@@ -77,7 +77,7 @@ public class MyPlaceActivity extends AppCompatActivity {
                     public void run() {
                         TextView pictureNullText = (TextView) findViewById(R.id.picture_null_text);
                         TextView noPicturesText = (TextView) findViewById(R.id.no_pictures_text);
-                        if (concretePlace.getPicturesList() != null) {
+                        if (concretePlace.getPicturesList().size() >= 1) {
                             pictureNullText.setVisibility(View.GONE);
                             recyclerView.setVisibility(View.VISIBLE);
                             recyclerView.setAdapter(new MyPlaceRecyclerAdapter(concretePlace.getPicturesList()));
@@ -95,27 +95,6 @@ public class MyPlaceActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("places", MODE_PRIVATE);
         return prefs.getString(placeName, "");
     }
-    private void initPlaces() {
-        HttpUtil.getPlaces(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                final String responseContent = response.body().string();
-                ParseJSON.handleJSONForPlaces(responseContent);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        placeId = getPlaceIdFromPlaceName(placeName);
-                    }
-                });
-            }
-        });
-    }
-
     private void addPicture() {
         addPictureButton.setOnClickListener(new View.OnClickListener() {
             @Override

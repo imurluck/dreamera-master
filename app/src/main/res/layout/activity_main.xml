@@ -37,7 +37,9 @@
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
             app:tabTextColor="#FFF"
-            app:tabMode="fixed" />
+            app:tabMode="fixed"
+            app:tabIndicatorColor="@android:color/holo_blue_bright"
+            app:tabTextAppearance="@android:style/TextAppearance.Holo.Large"/>
 
         <android.support.v4.view.ViewPager
             android:id="@+id/view_pager"

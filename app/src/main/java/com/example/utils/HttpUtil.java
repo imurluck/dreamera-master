@@ -75,6 +75,14 @@ public class HttpUtil {
                 .build();
         okHttpClient.newCall(request).enqueue(callback);
     }
+
+    public static void getPicture(String pictureId, okhttp3.Callback callback) {
+        Request request = new Request.Builder()
+                .url(BASE_PICTURE + pictureId + "/")
+                .get()
+                .build();
+        okHttpClient.newCall(request).enqueue(callback);
+    }
     public static void postPicture(Map<String, String> paraMap, String imgPath, okhttp3.Callback callback) {
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         File img = new File(imgPath);

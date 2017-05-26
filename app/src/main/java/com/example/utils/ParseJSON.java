@@ -2,6 +2,7 @@ package com.example.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.example.dreamera_master.MyApplication;
 import com.google.gson.Gson;
@@ -24,6 +25,8 @@ public class ParseJSON {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 places.add(jsonObject.getString("name"));
+                Log.d("ParseJSON", jsonObject.getString("name"));
+                Log.d("ParseJSON", jsonObject.getString("id"));
                 SharedPreferences.Editor editor = MyApplication.getContext().getSharedPreferences("places",
                         Context.MODE_PRIVATE).edit();
                 editor.putString(jsonObject.getString("name"), String.valueOf(jsonObject.getInt("id")));

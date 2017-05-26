@@ -5,16 +5,19 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.adapter.GetFragmentListAdapter;
 import com.example.utils.HttpUtil;
 import com.example.utils.ParseJSON;
 
@@ -42,9 +45,38 @@ public class GetFragment extends Fragment {
 
     private String placeId = null;
 
-    private ArrayAdapter adapter;
+    private final int GET_PLACES = 1;
+
+    private final int DELETE_PLACE = 2;
+
+    private final int REFRESH_PLACE = 3;
+
+    private GetFragmentListAdapter adapter;
+
+    private  SwipeRefreshLayout swipeRefresh;
 
     private List<String> placesList = new ArrayList<String>();
+
+    private Handler handler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case GET_PLACES:
+                    adapter = new GetFragmentListAdapter(placesList);
+                    placesListView.setAdapter(adapter);
+                    break;
+                case DELETE_PLACE:
+                    adapter.notifyDataSetChanged();
+                    swipeRefresh.setRefreshing(false);
+                    break;
+                case REFRESH_PLACE:
+                    adapter.notifyDataSetChanged();
+                    swipeRefresh.setRefreshing(false);
+                    break;
+                default:
+            }
+        }
+    };
+
     public GetFragment() {
         // Required empty public constructor
     }
@@ -56,12 +88,36 @@ public class GetFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_get, container, false);
         placesListView = (ListView) view.findViewById(R.id.place_list);
         nullText = (TextView) view.findViewById(R.id.null_text);
-        getPlaces();
+        swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.get_fragment_place_refresh);
+        swipeRefresh.setColorSchemeResources(R.color.colorAccent);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshPlace();
+            }
+        });
         placesListView.setEmptyView(nullText);
+        getPlaces();
         handleListView();
         return view;
     }
+    private void refreshPlace() {
+                HttpUtil.getPlaces(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
 
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        String jsonData = response.body().string();
+                        placesList = ParseJSON.handleJSONForPlaces(jsonData);
+                        Message message = new Message();
+                        message.what = REFRESH_PLACE;
+                        handler.sendMessage(message);
+                    }
+                });
+    }
     private void getPlaces() {
         HttpUtil.getPlaces(new Callback() {
             @Override
@@ -73,14 +129,9 @@ public class GetFragment extends Fragment {
             public void onResponse(Call call, Response response) throws IOException {
                 String jsonData = response.body().string();
                 placesList = ParseJSON.handleJSONForPlaces(jsonData);
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter = new ArrayAdapter(MyApplication.getContext(),
-                                android.R.layout.simple_list_item_1, placesList );
-                        placesListView.setAdapter(adapter);
-                    }
-                });
+                Message message = new Message();
+                message.what = GET_PLACES;
+                handler.sendMessage(message);
             }
         });
     }
@@ -107,6 +158,7 @@ public class GetFragment extends Fragment {
                         .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                swipeRefresh.setRefreshing(true);
                                 HttpUtil.deletePlace(placeId, new Callback() {
                                     @Override
                                     public void onFailure(Call call, IOException e) {
@@ -116,12 +168,9 @@ public class GetFragment extends Fragment {
                                     @Override
                                     public void onResponse(Call call, Response response) throws IOException {
                                         placesList.remove(currentPosition);
-                                        getActivity().runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                adapter.notifyDataSetChanged();
-                                            }
-                                        });
+                                        Message message = new Message();
+                                        message.what = DELETE_PLACE;
+                                        handler.sendMessage(message);
                                     }
                                 });
                             }

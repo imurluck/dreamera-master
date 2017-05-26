@@ -2,7 +2,9 @@ package com.example.dreamera_master;
 
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -46,6 +48,8 @@ import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import com.example.utils.HttpUtil;
+import com.example.utils.ParseJSON;
+import com.example.utils.Place;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -105,6 +109,8 @@ public class PostFragment extends Fragment implements View.OnClickListener {
     private boolean isTaged = false;
 
     private ProgressDialog progressDialog = null;
+
+    private final int ADD_PLCAE = 2;
 
     private Map<String, String> paraMap = new HashMap<String, String>();
 
@@ -243,6 +249,13 @@ public class PostFragment extends Fragment implements View.OnClickListener {
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
                         closeProgressDialog();
+                        Place place;
+                        String responseContent = response.body().string();
+                        place = ParseJSON.handleJSONForConcretePlace(responseContent);
+                        SharedPreferences.Editor editor = MyApplication.getContext().getSharedPreferences("places",
+                                Context.MODE_PRIVATE).edit();
+                        editor.putString(place.getName(), String.valueOf(place.getPlaceId()));
+                        editor.apply();
                         Intent intent = new Intent(getActivity(), MyPlaceActivity.class);
                         intent.putExtra("placeName", addressEdit.getText().toString());
                         startActivity(intent);

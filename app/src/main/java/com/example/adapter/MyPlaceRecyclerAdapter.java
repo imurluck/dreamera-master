@@ -1,6 +1,7 @@
 package com.example.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.dreamera_master.MyApplication;
+import com.example.dreamera_master.MyPictureActivity;
 import com.example.dreamera_master.R;
 import com.example.utils.MyPicture;
 
@@ -48,7 +50,18 @@ public class MyPlaceRecyclerAdapter extends RecyclerView.Adapter<MyPlaceRecycler
         }
         View view = LayoutInflater.from(mContext).inflate(R.layout.place_card_view, parent,
                 false);
-        return new ViewHolder(view);
+        final ViewHolder holder = new ViewHolder(view);
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = holder.getAdapterPosition();
+                MyPicture myPicture = picturesList.get(position);
+                Intent intent = new Intent(mContext, MyPictureActivity.class);
+                intent.putExtra("picture_data", myPicture);
+                mContext.startActivity(intent);
+            }
+        });
+        return holder;
     }
 
     @Override
@@ -57,7 +70,7 @@ public class MyPlaceRecyclerAdapter extends RecyclerView.Adapter<MyPlaceRecycler
 
         }
         MyPicture myPicture = picturesList.get(position);
-        holder.detailTitle.setText(myPicture.getDetail_title());
+        holder.detailTitle.setText(myPicture.getTitle());
         Glide.with(mContext).load(myPicture.getPictureUrl()).into(holder.placeImage);
     }
 

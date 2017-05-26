@@ -8,4 +8,13 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="MyEditText" parent="Theme.AppCompat.Light">
+
+        <item name="colorControlActivated">@color/cardview_light_background</item>
+        <item name="colorControlNormal">@color/cardview_light_background</item>
+    </style>
+
+    <style name="MyPictureActivityTheme" parent="AppTheme">
+    </style>
+
 </resources>

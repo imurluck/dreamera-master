@@ -218,17 +218,17 @@ public class MainActivity extends AppCompatActivity {
          viewPager = (ViewPager) findViewById(R.id.view_pager);
 
          postFragment = new PostFragment();
-         putFragment = new PutFragment();
-         deleteFragment = new DeleteFragment();
+         //putFragment = new PutFragment();
+         //deleteFragment = new DeleteFragment();
          getFragment = new GetFragment();
          fragmentList.add(postFragment);
-         fragmentList.add(putFragment);
-         fragmentList.add(deleteFragment);
+         //fragmentList.add(putFragment);
+         //fragmentList.add(deleteFragment);
          fragmentList.add(getFragment);
 
          tabTitles.add(new String("Post"));
-         tabTitles.add(new String("Put"));
-         tabTitles.add(new String("Delete"));
+         //tabTitles.add(new String("Put"));
+         //tabTitles.add(new String("Delete"));
          tabTitles.add(new String("Get"));
          FragmentAdapter adapter = new FragmentAdapter(getSupportFragmentManager(),
                  fragmentList, tabTitles);
