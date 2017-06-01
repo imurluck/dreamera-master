@@ -8,9 +8,11 @@ import com.example.dreamera_master.MyApplication;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -38,6 +40,27 @@ public class ParseJSON {
         return places;
     }
 
+    public static ArrayList<HashMap<String, Object>> handleJSONForPlacesOnMap(String jsonData) {
+        ArrayList<HashMap<String, Object>> list = new ArrayList<HashMap<String, Object>>();
+        if ("".equals(jsonData)) {
+            return list;
+        }
+        try {
+            JSONArray jsonArray = new JSONArray(jsonData);
+            for (int i = 0; i < jsonArray.length(); i ++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                HashMap<String, Object> map = new HashMap();
+                map.put("name", jsonObject.getString("name"));
+                map.put("longitude", jsonObject.getString("longitude"));
+                map.put("latitude", jsonObject.getString("latitude"));
+                map.put("cross_pictures", jsonObject.getString("cross_pictures"));
+                list.add(map);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
     public static Place handleJSONForConcretePlace(String jsonData) {
         return new Gson().fromJson(jsonData, Place.class);
     }

@@ -17,9 +17,9 @@ import okhttp3.RequestBody;
 
 public class HttpUtil {
 
-    private static final String BASE_PLACE = "http://www.dreamera.net/cross/place/";
+    private static final String BASE_PLACE = "http://www.dreamera.net:8000/cross/place/";
 
-    private static final String BASE_PICTURE = "http://www.dreamera.net/cross/picture/";
+    private static final String BASE_PICTURE = "http://www.dreamera.net:8000/cross/picture/";
 
     public static OkHttpClient okHttpClient = new OkHttpClient();
     public static void getPlaces(okhttp3.Callback callback) {

@@ -17,4 +17,9 @@
     <style name="MyPictureActivityTheme" parent="AppTheme">
     </style>
 
+    <style name="popup_windows_anim" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/pop_windows</item>
+        <item name="android:windowExitAnimation">@anim/exit_windows</item>
+    </style>
+
 </resources>

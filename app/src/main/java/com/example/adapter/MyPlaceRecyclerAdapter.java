@@ -11,9 +11,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.example.dreamera_master.MyApplication;
 import com.example.dreamera_master.MyPictureActivity;
 import com.example.dreamera_master.R;
+import com.example.interfaces.OnItemLongClickListener;
 import com.example.utils.MyPicture;
 
 import java.util.List;
@@ -23,9 +23,26 @@ import java.util.List;
  */
 
 public class MyPlaceRecyclerAdapter extends RecyclerView.Adapter<MyPlaceRecyclerAdapter.
-        ViewHolder> {
+        ViewHolder> implements View.OnLongClickListener{
     Context mContext;
+
+    private int currentPosition;
+
     private List<MyPicture> picturesList;
+
+    private OnItemLongClickListener mOnItemLongClickListener;
+
+    @Override
+    public boolean onLongClick(View v) {
+        if (mOnItemLongClickListener != null) {
+            mOnItemLongClickListener.onItemLongClick(v, currentPosition);
+        }
+        return true;
+    }
+
+    public void setOnItemLongClickListener(OnItemLongClickListener listener) {
+        this.mOnItemLongClickListener = listener;
+    }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         CardView cardView;
@@ -40,14 +57,12 @@ public class MyPlaceRecyclerAdapter extends RecyclerView.Adapter<MyPlaceRecycler
         }
     }
 
-    public MyPlaceRecyclerAdapter(List<MyPicture> picturesList) {
+    public MyPlaceRecyclerAdapter(List<MyPicture> picturesList, Context context) {
         this.picturesList = picturesList;
+        this.mContext = context;
     }
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (mContext == null) {
-            mContext = MyApplication.getContext();
-        }
         View view = LayoutInflater.from(mContext).inflate(R.layout.place_card_view, parent,
                 false);
         final ViewHolder holder = new ViewHolder(view);
@@ -61,14 +76,18 @@ public class MyPlaceRecyclerAdapter extends RecyclerView.Adapter<MyPlaceRecycler
                 mContext.startActivity(intent);
             }
         });
+        holder.cardView.setOnLongClickListener(this);
         return holder;
     }
+
+
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         if (picturesList == null) {
 
         }
+        currentPosition = position;
         MyPicture myPicture = picturesList.get(position);
         holder.detailTitle.setText(myPicture.getTitle());
         Glide.with(mContext).load(myPicture.getPictureUrl()).into(holder.placeImage);

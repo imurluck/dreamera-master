@@ -47,6 +47,7 @@ import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
+import com.example.utils.BMapControlUtil;
 import com.example.utils.HttpUtil;
 import com.example.utils.ParseJSON;
 import com.example.utils.Place;
@@ -114,6 +115,8 @@ public class PostFragment extends Fragment implements View.OnClickListener {
 
     private Map<String, String> paraMap = new HashMap<String, String>();
 
+    private BMapControlUtil mBMapControlUtil;
+
     public PostFragment() {
         // Required empty public constructor
     }
@@ -137,6 +140,7 @@ public class PostFragment extends Fragment implements View.OnClickListener {
         //addPicture.setOnClickListener(this);
         mLocationClient = new LocationClient(getActivity().getApplication());
         mLocationClient.registerLocationListener(new MyLocationListener());
+        mBMapControlUtil = new BMapControlUtil(getActivity(), baiduMap);
         requestLocation();
         tagMap();
         if (isTaged == false) {
@@ -151,6 +155,7 @@ public class PostFragment extends Fragment implements View.OnClickListener {
         return view;
     }
 
+
     private void tagMap() {
         baiduMap.setOnMapClickListener(new BaiduMap.OnMapClickListener() {
             @Override
@@ -161,13 +166,13 @@ public class PostFragment extends Fragment implements View.OnClickListener {
                 if (marker != null) {
                     marker.remove();
                 }
+                getAddress(latLng);
                 BitmapDescriptor bitmap = BitmapDescriptorFactory
-                        .fromResource(R.drawable.tag_icon);
+                        .fromResource(R.drawable.icon_gcoding);
                 OverlayOptions option = new MarkerOptions()
                         .position(latLng)
                         .icon(bitmap);
                 marker = (Marker) (baiduMap.addOverlay(option));
-                getAddress(latLng);
             }
             @Override
             public boolean onMapPoiClick(MapPoi mapPoi) {
@@ -188,14 +193,25 @@ public class PostFragment extends Fragment implements View.OnClickListener {
             public void onGetReverseGeoCodeResult(ReverseGeoCodeResult reverseGeoCodeResult) {
                 isTaged = true;
                 address = reverseGeoCodeResult.getAddress();
-                TextView textView = new TextView(MyApplication.getContext());
-                textView.setBackgroundColor(Color.WHITE);
-                textView.setTextColor(Color.BLACK);
-                Log.d("address", address);
-                textView.setText(address);
-                mInfoWindow = new InfoWindow(textView, latLng, 80);
-                baiduMap.showInfoWindow(mInfoWindow);
-                addPlace();
+                //Log.e("POstFragment", "海洋地址" + address);
+                if (!address.equals("")) {
+                    TextView textView = new TextView(MyApplication.getContext());
+                    textView.setBackgroundColor(Color.WHITE);
+                    textView.setTextColor(Color.BLACK);
+                    Log.d("address", address);
+                    textView.setText(address);
+                    mInfoWindow = new InfoWindow(textView, latLng, 80);
+                    baiduMap.showInfoWindow(mInfoWindow);
+                    addPlace();
+                } else {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MyApplication.getContext(), "click on sea is invalid",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
         });
         mSearch.reverseGeoCode(new ReverseGeoCodeOption().location(latLng));
@@ -281,6 +297,10 @@ public class PostFragment extends Fragment implements View.OnClickListener {
         LocationClientOption option = new LocationClientOption();
         option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
         option.setScanSpan(5000);
+        if (!option.isOpenGps()) {
+            option.setOpenGps(true);
+        }
+        option.setCoorType("bd09ll");
         mLocationClient.setLocOption(option);
     }
 
@@ -289,7 +309,7 @@ public class PostFragment extends Fragment implements View.OnClickListener {
             LatLng ll = new LatLng(location.getLatitude(), location.getLongitude());
             MapStatusUpdate update = MapStatusUpdateFactory.newLatLng(ll);
             baiduMap.animateMapStatus(update);
-            update = MapStatusUpdateFactory.zoomTo(18f);
+            update = MapStatusUpdateFactory.zoomTo(16f);
             baiduMap.animateMapStatus(update);
             isFirstLocate = false;
         }

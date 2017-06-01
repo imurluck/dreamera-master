@@ -113,6 +113,7 @@ public class PictureModifyActivity extends AppCompatActivity {
         chooseTime = (Button) findViewById(R.id.picture_modify_choose_time);
         modify = (Button) findViewById(R.id.picture_modify_modify);
         cancel = (Button) findViewById(R.id.picture_modify_cancel);
+        Glide.with(this).load(myPicture.getPictureUrl()).into(imageView);
         initEditText();
         choosePhoto();
         chooseTime();
@@ -179,8 +180,10 @@ public class PictureModifyActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case 1:
-                pictureUrl = HandleImagePath.handleImagePath(data);
-                showImage();
+                if (data != null) {
+                    pictureUrl = HandleImagePath.handleImagePath(data);
+                    showImage();
+                }
                 break;
         }
     }

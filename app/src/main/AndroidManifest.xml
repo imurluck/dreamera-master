@@ -39,11 +39,17 @@
             android:process=":remote" />
 
         <activity android:name=".MyPlaceActivity" />
-        <activity android:name=".AddPictureActivity" />
-        <activity android:name=".MyPictureActivity"
+        <activity android:name=".AddPictureActivity"
             android:theme="@style/MyPictureActivityTheme"/>
-        <activity android:name=".PictureModifyActivity"
-            android:theme="@style/MyPictureActivityTheme"></activity>
+        <activity
+            android:name=".MyPictureActivity"
+            android:theme="@style/MyPictureActivityTheme" />
+        <activity
+            android:name=".PictureModifyActivity"
+            android:theme="@style/MyPictureActivityTheme" />
+        <activity android:name=".LoginActivity"
+            android:theme="@style/MyPictureActivityTheme">
+        </activity>
     </application>
 
 </manifest>
